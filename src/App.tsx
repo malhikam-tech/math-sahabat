@@ -32,6 +32,7 @@ export default function App() {
   const [currentConcept, setCurrentConcept] = useState<string | null>(null);
   const [explanation, setExplanation] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Forum state
   const [questions, setQuestions] = useState<any[]>([]);
@@ -63,10 +64,13 @@ export default function App() {
   const fetchQuestions = async () => {
     try {
       const res = await fetch('/api/questions');
+      if (!res.ok) throw new Error('Gagal mengambil data dari server.');
       const data = await res.json();
       setQuestions(data);
+      setError(null);
     } catch (err) {
       console.error(err);
+      setError('Server (API) tidak merespon. Jika kamu di Vercel, pastikan database sudah terhubung.');
     }
   };
 
@@ -206,6 +210,12 @@ export default function App() {
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-center gap-3 text-sm">
+            <XCircle className="w-5 h-5 flex-shrink-0" />
+            <p>{error}</p>
+          </div>
+        )}
         <AnimatePresence mode="wait">
           {view === 'home' && (
             <motion.div 
